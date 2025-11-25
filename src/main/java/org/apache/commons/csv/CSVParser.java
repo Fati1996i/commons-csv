@@ -45,7 +45,6 @@ import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -732,7 +731,7 @@ public final class CSVParser implements Iterable<CSVRecord>, Closeable {
      * @since 1.7
      */
     public List<String> getHeaderNames() {
-        return Collections.unmodifiableList(headers.headerNames);
+        return headers.headerNames;
     }
 
     /**
@@ -765,7 +764,12 @@ public final class CSVParser implements Iterable<CSVRecord>, Closeable {
      *             on parse error or input read-failure
      */
     public List<CSVRecord> getRecords() {
-        return stream().collect(Collectors.toList());
+        final List<CSVRecord> records = new ArrayList<>();
+        final Iterator<CSVRecord> iterator = iterator();
+        while (iterator.hasNext()) {
+            records.add(iterator.next());
+        }
+        return records;
     }
 
     /**
@@ -921,7 +925,8 @@ public final class CSVParser implements Iterable<CSVRecord>, Closeable {
         } while (reusableToken.type == TOKEN);
         if (!recordList.isEmpty()) {
             recordNumber++;
-            result = new CSVRecord(this, recordList.toArray(Constants.EMPTY_STRING_ARRAY), Objects.toString(sb, null), recordNumber, startCharPosition,
+            final String comment = sb == null ? null : sb.toString();
+            result = new CSVRecord(this, recordList.toArray(Constants.EMPTY_STRING_ARRAY), comment, recordNumber, startCharPosition,
                     startBytePosition);
         }
         return result;
