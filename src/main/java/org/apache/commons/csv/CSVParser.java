@@ -732,7 +732,7 @@ public final class CSVParser implements Iterable<CSVRecord>, Closeable {
      * @since 1.7
      */
     public List<String> getHeaderNames() {
-        return Collections.unmodifiableList(headers.headerNames);
+        return headers.headerNames;
     }
 
     /**
@@ -765,7 +765,12 @@ public final class CSVParser implements Iterable<CSVRecord>, Closeable {
      *             on parse error or input read-failure
      */
     public List<CSVRecord> getRecords() {
-        return stream().collect(Collectors.toList());
+        final List<CSVRecord> records = new ArrayList<>();
+        final Iterator<CSVRecord> iterator = iterator();
+        while (iterator.hasNext()) {
+            records.add(iterator.next());
+        }
+        return records;
     }
 
     /**
@@ -866,7 +871,7 @@ public final class CSVParser implements Iterable<CSVRecord>, Closeable {
      * {@link #getRecords()}, and return an iterator to that list.
      * </p>
      * <p>
-     * You can use {@link CSVFormat.Builder#setMaxRows(long)} to limit how many rows an Iterator produces.
+     * You can use {@link CSVFormat.Builder#setMaxRows(long)} to limit how many rows this Iterator produces.
      * </p>
      */
     @Override
